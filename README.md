@@ -1,66 +1,22 @@
-## Foundry
+# ApexCore Vault 🛡️
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+ApexCore is a smart contract Vault based on the **ERC-4626** standard. It is designed to manage user assets securely with built-in fee mechanisms.
 
-Foundry consists of:
+**Current Status:** Level 1 Completed (Fee Manager)
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+## 🚀 Features
 
-## Documentation
+### 1. Fee Manager (The Capitalist)
+- Automatically collects a **2% Fee** on every deposit.
+- Uses **Basis Points (BPS)** for precise math.
+- Fees are sent directly to the Vault Owner.
 
-https://book.getfoundry.sh/
+## 🛠 Tech Stack
+- **Language:** Solidity ^0.8.20
+- **Framework:** Foundry (Forge)
+- **Security:** OpenZeppelin Contracts
 
-## Usage
-
-### Build
-
-```shell
-$ forge build
-```
-
-### Test
-
-```shell
-$ forge test
-```
-
-### Format
-
-```shell
-$ forge fmt
-```
-
-### Gas Snapshots
-
-```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
+## 🧪 How to Test
+Run the following command to see the fee logic in action:
+```bash
+forge test -vv
