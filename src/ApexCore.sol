@@ -6,25 +6,24 @@ import {ERC4626} from "@openzeppelin/contracts/token/ERC20/extensions/ERC4626.so
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {InsufficientTime} from "./customError.sol";
 
 contract ApexCore is ERC4626, Ownable {
     using SafeERC20 for IERC20;
 
-    // Definisikan Fee
     uint256 private constant DEPOSIT_FEE_BPS = 200;
-    // Buat event untuk fee
+    uint256 private constant LOCK_TIME = 3 days;
+
+    mapping (address => uint256) DepositTime;
+
     event FeeTaken(address indexed sender, uint256 feeAmount);
-    // constructor
+
     constructor(IERC20 asset_, address initialOwner_) 
         ERC4626(asset_)
         ERC20("Apex Core", "APC")
         Ownable(initialOwner_)
     {}
-        // Inisialisasi ERC20
-        // Inisialisasi ERC4626
-        // Inisialisasi owner()
     
-    // Bikin fungsi deposit
     function deposit(uint256 assets, address receiver) public override returns (uint256) {
         uint256 fee = (assets * DEPOSIT_FEE_BPS) / 10000;
 
@@ -39,11 +38,28 @@ contract ApexCore is ERC4626, Ownable {
             emit FeeTaken(msg.sender, fee);
         }
 
+        DepositTime[receiver] = block.timestamp;
+
         return super.deposit(netAsset, receiver);
     }
-        // hitung fee
-        // kurangi asset - fee
-        // transfer fee ke owner
-        // emit
-        // panggil fungsi deposit
+
+    function withdraw(uint256 assets, address receiver, address owner) public override returns (uint256) {
+        uint256 depositTime = DepositTime[owner];
+
+        if (block.timestamp < depositTime + LOCK_TIME) {
+            revert InsufficientTime();
+        }
+
+        return super.withdraw(assets, receiver, owner);
+    }
+
+    function redeem(uint256 shares, address receiver, address owner) public override returns (uint256) {
+        uint256 depositTime = DepositTime[owner];
+
+        if (block.timestamp < depositTime + LOCK_TIME) {
+            revert InsufficientTime();
+        }
+
+        return super.redeem(shares, receiver, owner);
+    }
 }
