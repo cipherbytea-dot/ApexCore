@@ -20,54 +20,45 @@ contract ApexCoreTest is Test {
     address public owner = address(0x1);
     address public alice = address(0x2);
 
-    // --- SETUP: Dijalankan sebelum setiap test ---
-    function setUp() public {
-        // 1. Deploy Token Palsu
-        token = new MockERC20();
+    uint256 public INITIAL_BALANCE = 5000 ether;
 
-        // 2. Deploy Vault Kita (ApexCore)
-        // Asset: token, Owner: address(0x1)
+    function setUp() public {
+        vm.startPrank(owner);
+
+        token = new MockERC20();
         vault = new ApexCore(token, owner);
 
-        // 3. Kasih Alice duit jajan 1000 token
-        token.mint(alice, 1000 ether);
+        token.mint(alice, INITIAL_BALANCE);
+
+        vm.stopPrank();
     }
 
-    // --- TEST: Cek apakah Fee Deposit jalan? ---
-    function testDepositTakesFee() public {
-        uint256 depositAmount = 100 ether; // Alice mau deposit 100
-        
-        // Mulai sandiwara sebagai Alice
+    function test_Deposit_BasicFlow() public {
         vm.startPrank(alice);
-        
-        // Alice setujui (Approve) Vault buat narik duitnya
-        token.approve(address(vault), depositAmount);
-        
-        // Alice melakukan Deposit
-        vault.deposit(depositAmount, alice);
-        
-        vm.stopPrank(); // Selesai sandiwara
+        token.approve(address(vault), INITIAL_BALANCE); 
 
-        // --- MATEMATIKA ---
-        // Fee 2% dari 100 = 2
-        // Bersih = 98
-        uint256 expectedFee = 2 ether;
+        uint256 depositAmount = 100 ether;
+        uint256 sharesReceived = vault.deposit(depositAmount, alice);
+
+        vm.stopPrank();
+
+        assertGt(sharesReceived, 0); // Pastikan A lebih besar dari B
+        assertEq(vault.balanceOf(alice), sharesReceived); // Pastikan A == B
+
+        assertEq(token.balanceOf(alice), INITIAL_BALANCE - depositAmount);
+    }
+
+    function test_DepositTakeFeeCorrectly() public {
+        vm.startPrank(alice);
+        token.approve(address(vault), INITIAL_BALANCE);
+
         uint256 expectedNet = 98 ether;
+        uint256 expectedFee = 2 ether;
 
-        // --- ASSERT (PENGECEKAN) ---
+        vault.deposit(100 ether, alice);
+        vm.stopPrank();
         
-        // 1. Cek saldo Owner (Harus nambah 2 token)
-        uint256 ownerBalance = token.balanceOf(owner);
-        assertEq(ownerBalance, expectedFee, "Owner harus dapet Fee 2%");
-
-        // 2. Cek saldo Vault (Harus cuma nerima 98 token)
-        uint256 vaultBalance = token.balanceOf(address(vault));
-        assertEq(vaultBalance, expectedNet, "Vault harus nerima jumlah bersih");
-
-        // 3. Cek Share Alice (Alice harus dapet bukti kepemilikan senilai 98)
-        uint256 aliceShare = vault.balanceOf(alice);
-        assertEq(aliceShare, expectedNet, "Share Alice harus sesuai nilai bersih");
-        
-        console.log("Test Berhasil! Owner dapet cuan:", ownerBalance);
+        assertEq(token.balanceOf(owner), expectedFee);
+        assertEq(vault.totalAssets(), expectedNet);
     }
 }
