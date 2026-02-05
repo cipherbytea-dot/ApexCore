@@ -1,22 +1,40 @@
-# ApexCore Vault 🛡️
+# 🏦 ApexCore Vault (ERC4626)
 
-ApexCore is a smart contract Vault based on the **ERC-4626** standard. It is designed to manage user assets securely with built-in fee mechanisms.
+ApexCore is a robust Smart Contract Vault based on the **ERC4626** standard. It extends the standard implementation with built-in monetization mechanics and liquidity protection features.
 
-**Current Status:** Level 1 Completed (Fee Manager)
+## 🌟 Key Features
 
-## 🚀 Features
+### 1. 🛡️ Time-Locked Withdrawals
+To protect liquidity and prevent flash loan attacks, user deposits are subject to a mandatory locking period.
+- **Lock Duration:** 3 Days (72 Hours).
+- **Mechanism:** Users cannot execute `withdraw` or `redeem` until the lock period has passed since their last deposit.
 
-### 1. Fee Manager (The Capitalist)
-- Automatically collects a **2% Fee** on every deposit.
-- Uses **Basis Points (BPS)** for precise math.
-- Fees are sent directly to the Vault Owner.
+### 2. 💸 Management Fee (Monetization)
+An automated fee is applied to every deposit transaction.
+- **Fee Rate:** 2% (200 BPS).
+- **Flow:** The fee is deducted from the deposited assets and transferred directly to the contract `Owner`. The remaining assets (98%) are converted into Shares for the user.
 
-## 🛠 Tech Stack
-- **Language:** Solidity ^0.8.20
+### 3. 🔒 Standard ERC4626
+- Fully compatible with the ERC4626 tokenized vault standard.
+- Supports `deposit`, `mint`, `withdraw`, and `redeem` flows.
+- Built on top of audited OpenZeppelin libraries.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Solidity:** ^0.8.20
 - **Framework:** Foundry (Forge)
-- **Security:** OpenZeppelin Contracts
+- **Dependencies:** OpenZeppelin Contracts
 
-## 🧪 How to Test
-Run the following command to see the fee logic in action:
+---
+
+## 🚀 Getting Started
+
+Ensure you have [Foundry](https://book.getfoundry.sh/) installed on your machine.
+
+### 1. Clone & Install
 ```bash
-forge test -vv
+git clone <YOUR_REPO_URL>
+cd ApexCore
+forge install
