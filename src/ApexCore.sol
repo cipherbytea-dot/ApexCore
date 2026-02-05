@@ -14,16 +14,16 @@ contract ApexCore is ERC4626, Ownable {
     uint256 private constant DEPOSIT_FEE_BPS = 200;
     uint256 private constant LOCK_TIME = 3 days;
 
-    mapping (address => uint256) DepositTime;
+    mapping(address => uint256) DepositTime;
 
     event FeeTaken(address indexed sender, uint256 feeAmount);
 
-    constructor(IERC20 asset_, address initialOwner_) 
+    constructor(IERC20 asset_, address initialOwner_)
         ERC4626(asset_)
         ERC20("Apex Core", "APC")
         Ownable(initialOwner_)
     {}
-    
+
     function deposit(uint256 assets, address receiver) public override returns (uint256) {
         uint256 fee = (assets * DEPOSIT_FEE_BPS) / 10000;
 

@@ -5,9 +5,9 @@ import {Test, console} from "forge-std/Test.sol";
 import {ApexCore} from "../src/ApexCore.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-// 1. Kita bikin Token Palsu buat mainan (Mock Token)
 contract MockERC20 is ERC20 {
     constructor() ERC20("Mock Token", "MCK") {}
+
     function mint(address to, uint256 amount) public {
         _mint(to, amount);
     }
@@ -35,7 +35,7 @@ contract ApexCoreTest is Test {
 
     function test_Deposit_BasicFlow() public {
         vm.startPrank(alice);
-        token.approve(address(vault), INITIAL_BALANCE); 
+        token.approve(address(vault), INITIAL_BALANCE);
 
         uint256 depositAmount = 100 ether;
         uint256 sharesReceived = vault.deposit(depositAmount, alice);
@@ -57,8 +57,36 @@ contract ApexCoreTest is Test {
 
         vault.deposit(100 ether, alice);
         vm.stopPrank();
-        
+
         assertEq(token.balanceOf(owner), expectedFee);
         assertEq(vault.totalAssets(), expectedNet);
+    }
+
+    function test_Withdraw_RevertIfLocked() public {
+        vm.startPrank(alice);
+        token.approve(address(vault), INITIAL_BALANCE);
+        vault.deposit(1000 ether, alice);
+
+        vm.expectRevert();
+        vault.withdraw(100 ether, alice, alice);
+
+        vm.stopPrank();
+    }
+
+    function test_Withdraw_Success_AfterTimeTravel() public {
+        vm.startPrank(alice);
+        token.approve(address(vault), INITIAL_BALANCE);
+        vault.deposit(100 ether, alice);
+
+        uint256 aliceShares = vault.balanceOf(alice);
+        assertGt(aliceShares, 0);
+
+        vm.warp(block.timestamp + 3 days + 5 seconds);
+
+        vault.withdraw(98 ether, alice, alice);
+        vm.stopPrank();
+
+        assertEq(vault.balanceOf(alice), 0);
+        assertEq(token.balanceOf(alice), INITIAL_BALANCE - 2 ether);
     }
 }
