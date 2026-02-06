@@ -2,6 +2,17 @@
 
 ApexCore is a robust Smart Contract Vault based on the **ERC4626** standard. It extends the standard implementation with built-in monetization mechanics and liquidity protection features.
 
+## 🌐 Live Deployment (Sepolia Testnet)
+
+This project is deployed and verified on the Sepolia Testnet.
+
+| Contract | Address | Explorer |
+| :--- | :--- | :--- |
+| **ApexCore Vault** | `0xc1fBd09868d1E5962BE3F7E1C911363424113db8` | [View on Etherscan](https://sepolia.etherscan.io/address/0xc1fBd09868d1E5962BE3F7E1C911363424113db8) |
+| **Mock Token** | `0xFa41f4F79925b2F698c9168232c72251A41ABbBe` | [View on Etherscan](https://sepolia.etherscan.io/address/0xFa41f4F79925b2F698c9168232c72251A41ABbBe) |
+
+---
+
 ## 🌟 Key Features
 
 ### 1. 🛡️ Time-Locked Withdrawals
@@ -35,6 +46,6 @@ Ensure you have [Foundry](https://book.getfoundry.sh/) installed on your machine
 
 ### 1. Clone & Install
 ```bash
-git clone <YOUR_REPO_URL>
+git clone https://github.com/cipherbytea-dot/ApexCore.git
 cd ApexCore
 forge install
