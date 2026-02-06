@@ -89,4 +89,37 @@ contract ApexCoreTest is Test {
         assertEq(vault.balanceOf(alice), 0);
         assertEq(token.balanceOf(alice), INITIAL_BALANCE - 2 ether);
     }
+
+    function test_Redeem_RevertIfLocked() public {
+        vm.startPrank(alice);
+        token.approve(address(vault), INITIAL_BALANCE);
+        vault.deposit(1000 ether, alice);
+
+        vm.expectRevert();
+        vault.redeem(1000 ether, alice, alice);
+
+        vm.stopPrank();
+    }
+
+    function test_Redeem_Success_AfterTimeTravel() public {
+        // Arrange
+        // gas nyamar jadi alice
+        vm.startPrank(alice);
+        // deposit >> approve dulu
+        token.approve(address(vault), INITIAL_BALANCE);
+        vault.deposit(100 ether, alice);
+        // cek dulu bahwa shares si alice > 0
+        uint256 aliceShares = vault.balanceOf(alice);
+        assertGt(aliceShares, 0);
+        // Act
+        // lewat waktu 3hari + 4 detik
+        vm.warp(block.timestamp + 3 days + 5 seconds);
+        // panggil fungsi redeem
+        vault.redeem(98 ether, alice, alice);
+        // stop nyamar
+        vm.stopPrank();
+        // Assert
+        assertEq(vault.balanceOf(alice), 0);
+        assertEq(token.balanceOf(alice), 4998 ether);
+    }
 }
